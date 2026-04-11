@@ -1,0 +1,115 @@
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 0 20px;
+    color: #222;
+    background: #fafafa;
+}
+
+h1, h2 {
+    text-align: center;
+    color: #333;
+}
+
+h2 {
+    margin-top: 56px;
+}
+
+#status {
+    text-align: center;
+    color: #888;
+    margin-bottom: 24px;
+}
+
+#vocab-grid {
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    gap: 10px;
+}
+
+.vocab-card {
+    background: white;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    padding: 14px 8px;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.vocab-card .char {
+    font-size: 32px;
+    font-weight: bold;
+    font-family: "Courier New", monospace;
+    margin-bottom: 4px;
+}
+
+.vocab-card .id {
+    font-size: 12px;
+    color: #666;
+}
+
+.vocab-card.vowel {
+    background: #ffecec;
+    border-color: #e57373;
+}
+
+.vocab-card.consonant {
+    background: #e9f0fb;
+    border-color: #5b8fd9;
+}
+
+.vocab-card.space {
+    background: #eafbe9;
+    border-color: #66bb6a;
+}
+
+/* ------- Encoder section ------- */
+
+#encode-form {
+    display: flex;
+    gap: 10px;
+    margin: 12px 0 24px 0;
+}
+
+#encode-input {
+    flex: 1;
+    padding: 12px 16px;
+    font-size: 18px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-family: inherit;
+    box-sizing: border-box;
+}
+
+#encode-input:focus {
+    outline: none;
+    border-color: #5b8fd9;
+}
+
+#encode-form button {
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+    background: #5b8fd9;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+#encode-form button:hover {
+    background: #4a7bc5;
+}
+
+#encode-result {
+    font-family: "Courier New", monospace;
+    font-size: 18px;
+    padding: 16px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    min-height: 24px;
+    word-wrap: break-word;
+    color: #333;
+}
