@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 import re
+import torch
+import torch.nn as nn
 
 app = FastAPI()
 
@@ -23,7 +25,8 @@ def normalize(text):
     return new_text
 
 
-print(normalize('1234 hi Hello'))
+
+
 
 @app.get('/vocab')
 def get_vocab():
@@ -38,6 +41,33 @@ def encode(string: str):
 
 
 
+
+
+embedding = nn.Embedding(len(vocab), 2)
+
+@app.post('/set_dim')
+def set_dim(dim: int):
+    global embedding
+    embedding = nn.Embedding(len(vocab), dim)
+    return {"dim": dim}
+
+@app.get('/embed')
+def embed():
+    result = {}
+    for id in range(len(vocab)):
+        vector = embedding.weight[id]
+        result[id] = vector.tolist()
+    return result
+
+@app.get('/embed_text')
+def embed_text(string: str):
+    text = normalize(string)
+    result = []
+    for c in text:
+        id = char_to_id[c]
+        vector = embedding.weight[id]
+        result.append({"char": c, "id": id, "vector": vector.tolist()})
+    return result
 
 
 app.mount("/", StaticFiles(directory="static", html=True), name="static")

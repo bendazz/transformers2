@@ -6,9 +6,21 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Character Vocabulary</h1>
+    <h1>Character Embeddings</h1>
     <p id="status">Loading...</p>
-    <div id="vocab-grid"></div>
+    <div id="vocab-list"></div>
+
+    <h2>Embedding Space</h2>
+    <div id="dim-picker">
+        <label>Dimensions:
+            <select id="dim-select">
+                <option value="2" selected>2D</option>
+                <option value="3">3D</option>
+            </select>
+        </label>
+    </div>
+    <canvas id="plot2d" width="500" height="500"></canvas>
+    <div id="plot3d"></div>
 
     <h2>Try encoding some text</h2>
     <form id="encode-form">
@@ -17,6 +29,17 @@
     </form>
     <div id="encode-result"></div>
 
+    <h2>Embed Text</h2>
+    <form id="embed-text-form">
+        <input type="text" id="embed-text-input" placeholder="Type anything...">
+        <button type="submit">Embed</button>
+    </form>
+    <div id="embed-text-result"></div>
+    <canvas id="text-plot2d" width="500" height="500"></canvas>
+    <div id="text-plot3d"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

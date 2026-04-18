@@ -22,10 +22,43 @@ h2 {
     margin-bottom: 24px;
 }
 
-#vocab-grid {
-    display: grid;
-    grid-template-columns: repeat(9, 1fr);
-    gap: 10px;
+#vocab-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.vocab-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.arrow {
+    font-size: 24px;
+    color: #999;
+}
+
+.id-box {
+    font-family: "Courier New", monospace;
+    font-size: 18px;
+    font-weight: bold;
+    background: white;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    padding: 8px 14px;
+    min-width: 30px;
+    text-align: center;
+}
+
+.vector-box {
+    font-family: "Courier New", monospace;
+    font-size: 16px;
+    background: white;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    padding: 8px 14px;
+    color: #333;
 }
 
 .vocab-card {
@@ -62,6 +95,36 @@ h2 {
 .vocab-card.space {
     background: #eafbe9;
     border-color: #66bb6a;
+}
+
+#dim-picker {
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+#dim-select {
+    font-size: 16px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 2px solid #ddd;
+}
+
+#plot2d {
+    display: block;
+    margin: 0 auto;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    background: white;
+}
+
+#plot3d {
+    display: none;
+    width: 500px;
+    height: 500px;
+    margin: 0 auto;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
 }
 
 /* ------- Encoder section ------- */
@@ -112,4 +175,98 @@ h2 {
     min-height: 24px;
     word-wrap: break-word;
     color: #333;
+}
+
+/* ------- Embed Text section ------- */
+
+#embed-text-form {
+    display: flex;
+    gap: 10px;
+    margin: 12px 0 24px 0;
+}
+
+#embed-text-input {
+    flex: 1;
+    padding: 12px 16px;
+    font-size: 18px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-family: inherit;
+    box-sizing: border-box;
+}
+
+#embed-text-input:focus {
+    outline: none;
+    border-color: #5b8fd9;
+}
+
+#embed-text-form button {
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+    background: #5b8fd9;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+#embed-text-form button:hover {
+    background: #4a7bc5;
+}
+
+.matrix {
+    border-collapse: collapse;
+    font-family: "Courier New", monospace;
+    font-size: 14px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 2px solid #ddd;
+}
+
+.matrix th, .matrix td {
+    padding: 8px 12px;
+    text-align: center;
+}
+
+#text-plot2d {
+    display: none;
+    margin: 16px auto 0 auto;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    background: white;
+}
+
+#text-plot3d {
+    display: none;
+    width: 500px;
+    height: 500px;
+    margin: 16px auto 0 auto;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.matrix-dim-label-header {
+    font-size: 12px;
+    color: #999;
+    font-weight: bold;
+    border-bottom: 2px solid #ddd;
+}
+
+.matrix-char {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    border-right: 2px solid #ddd;
+}
+
+.matrix-cell {
+    color: #444;
+}
+
+.matrix tr:nth-child(even) {
+    background: #f7f9fc;
 }
