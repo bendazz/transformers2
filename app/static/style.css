@@ -97,12 +97,19 @@ h2 {
     border-color: #66bb6a;
 }
 
-#plot2d {
+#plot2d, #position-plot2d {
     display: block;
     margin: 0 auto;
     border: 2px solid #ddd;
     border-radius: 8px;
     background: white;
+}
+
+#position-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 16px;
 }
 
 /* ------- Embed Text section ------- */
@@ -174,15 +181,33 @@ h2 {
     border-bottom: 2px solid #ddd;
 }
 
+.matrix-group-header {
+    font-size: 13px;
+    color: #555;
+    font-weight: bold;
+    border-bottom: 1px solid #eee;
+    border-left: 2px solid #ddd;
+}
+
 .matrix-char {
-    font-size: 18px;
+    font-size: 14px;
     font-weight: bold;
     color: #333;
     border-right: 2px solid #ddd;
+    white-space: nowrap;
 }
 
 .matrix-cell {
     color: #444;
+}
+
+.matrix-cell-group-start {
+    border-left: 2px solid #ddd;
+}
+
+.matrix-cell-final {
+    background: #fff8e1;
+    font-weight: bold;
 }
 
 .matrix tr:nth-child(even) {

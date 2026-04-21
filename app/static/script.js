@@ -105,7 +105,9 @@ function drawVocabPlot() {
 }
 
 // Draw a 2D scatter plot on a canvas element.
-// points is an array of { char, vector: [x, y] }
+// points is an array of { char, vector: [x, y], kind?: "char" | "position" | "final" }
+// If kind is present, the point's color/shape is picked accordingly and
+// arrows are drawn from the char and position points to the final point.
 function drawPlot2D(canvas, points) {
     const ctx = canvas.getContext("2d");
     const w = canvas.width;
@@ -146,21 +148,130 @@ function drawPlot2D(canvas, points) {
     ctx.textAlign = "left";
     ctx.fillText("(0, 0)", ox + 4, oy - 4);
 
+    // Group points by position so we can draw arrows from (char, position) -> final.
+    const groups = {};
+    for (const p of points) {
+        if (p.kind === undefined) continue;
+        if (groups[p.position] === undefined) groups[p.position] = {};
+        groups[p.position][p.kind] = p;
+    }
+    for (const pos in groups) {
+        const g = groups[pos];
+        if (g.final && g.char) {
+            const [x1, y1] = toPixel(g.char.vector[0], g.char.vector[1]);
+            const [x2, y2] = toPixel(g.final.vector[0], g.final.vector[1]);
+            drawArrow(ctx, x1, y1, x2, y2, "#bbb");
+        }
+        if (g.final && g.position) {
+            const [x1, y1] = toPixel(g.position.vector[0], g.position.vector[1]);
+            const [x2, y2] = toPixel(g.final.vector[0], g.final.vector[1]);
+            drawArrow(ctx, x1, y1, x2, y2, "#bbb");
+        }
+    }
+
     // Draw each point.
     for (let i = 0; i < points.length; i++) {
-        const char = points[i].char;
-        const [px, py] = toPixel(points[i].vector[0], points[i].vector[1]);
+        const p = points[i];
+        const [px, py] = toPixel(p.vector[0], p.vector[1]);
 
-        ctx.fillStyle = getColor(char);
+        let fill, radius;
+        if (p.kind === "position") {
+            fill = "#f0ad4e";
+            radius = 5;
+        } else if (p.kind === "final") {
+            fill = "#222";
+            radius = 7;
+        } else {
+            // "char" or untagged vocab plot
+            fill = getColor(p.char);
+            radius = 6;
+        }
+
+        ctx.fillStyle = fill;
         ctx.beginPath();
-        ctx.arc(px, py, 6, 0, 2 * Math.PI);
+        ctx.arc(px, py, radius, 0, 2 * Math.PI);
         ctx.fill();
 
         ctx.fillStyle = "#222";
         ctx.font = "bold 14px Courier New";
         ctx.textAlign = "center";
-        ctx.fillText(char === " " ? "␣" : char, px, py - 10);
+        const label = p.char === " " ? "␣" : (p.char || "");
+        ctx.fillText(label, px, py - 10);
     }
+}
+
+function drawArrow(ctx, x1, y1, x2, y2, color) {
+    ctx.strokeStyle = color;
+    ctx.fillStyle = color;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+
+    const angle = Math.atan2(y2 - y1, x2 - x1);
+    const headLen = 7;
+    ctx.beginPath();
+    ctx.moveTo(x2, y2);
+    ctx.lineTo(x2 - headLen * Math.cos(angle - Math.PI / 6), y2 - headLen * Math.sin(angle - Math.PI / 6));
+    ctx.lineTo(x2 - headLen * Math.cos(angle + Math.PI / 6), y2 - headLen * Math.sin(angle + Math.PI / 6));
+    ctx.closePath();
+    ctx.fill();
+}
+
+// Build a list row that mirrors the vocab rows but shows a character's
+// position in the typed string and its position embedding.
+function renderPositionList(data) {
+    const list = document.getElementById("position-list");
+    list.innerHTML = "";
+
+    for (let i = 0; i < data.length; i++) {
+        const char = idToChar[data[i].id];
+        const pos = data[i].position;
+        const embedding = data[i].position_embedding;
+
+        const row = document.createElement("div");
+        row.className = "vocab-row";
+
+        const card = createCard(char, data[i].id);
+
+        const arrow1 = document.createElement("div");
+        arrow1.className = "arrow";
+        arrow1.textContent = "→";
+
+        const posBox = document.createElement("div");
+        posBox.className = "id-box";
+        posBox.textContent = pos;
+
+        const arrow2 = document.createElement("div");
+        arrow2.className = "arrow";
+        arrow2.textContent = "→";
+
+        const vectorBox = document.createElement("div");
+        vectorBox.className = "vector-box";
+        const parts = embedding.map(v => v.toFixed(3));
+        vectorBox.textContent = `[${parts.join(", ")}]`;
+
+        row.appendChild(card);
+        row.appendChild(arrow1);
+        row.appendChild(posBox);
+        row.appendChild(arrow2);
+        row.appendChild(vectorBox);
+        list.appendChild(row);
+    }
+}
+
+function drawPositionPlot(data) {
+    const points = [];
+    for (let i = 0; i < data.length; i++) {
+        points.push({
+            char: String(data[i].position),
+            vector: data[i].position_embedding,
+            kind: "position",
+            position: data[i].position,
+        });
+    }
+    drawPlot2D(document.getElementById("position-plot2d"), points);
 }
 
 function setupEmbedText() {
@@ -168,12 +279,20 @@ function setupEmbedText() {
     const input = document.getElementById("embed-text-input");
     const resultDiv = document.getElementById("embed-text-result");
     const plot = document.getElementById("text-plot2d");
+    const posList = document.getElementById("position-list");
+    const posPlot = document.getElementById("position-plot2d");
+
+    // Hide the position + combined sections until the user submits something.
+    posPlot.style.display = "none";
+    plot.style.display = "none";
 
     form.addEventListener("submit", async (event) => {
         event.preventDefault();
 
         const text = input.value;
         if (text === "") {
+            posList.innerHTML = "";
+            posPlot.style.display = "none";
             resultDiv.innerHTML = "";
             plot.style.display = "none";
             return;
@@ -185,26 +304,48 @@ function setupEmbedText() {
         const data = await response.json();
 
         if (data.length === 0) {
+            posList.innerHTML = "";
+            posPlot.style.display = "none";
             resultDiv.innerHTML = "";
             plot.style.display = "none";
             return;
         }
 
-        const dim = data[0].embedding.length;
+        // Render the position section (mirror of the vocab section).
+        renderPositionList(data);
+        posPlot.style.display = "block";
+        drawPositionPlot(data);
 
-        // Build the matrix table.
+        const dim = data[0].char_embedding.length;
+
+        // Build a three-column matrix: char embedding | position embedding | sum.
         const table = document.createElement("table");
         table.className = "matrix";
 
         const headerRow = document.createElement("tr");
         headerRow.appendChild(document.createElement("th"));
-        for (let d = 0; d < dim; d++) {
+        const groupHeaders = ["char embedding", "position embedding", "final (sum)"];
+        for (const name of groupHeaders) {
             const th = document.createElement("th");
-            th.textContent = `d${d}`;
-            th.className = "matrix-dim-label-header";
+            th.textContent = name;
+            th.colSpan = dim;
+            th.className = "matrix-group-header";
             headerRow.appendChild(th);
         }
         table.appendChild(headerRow);
+
+        // Second header row: d0, d1, ... for each of the three groups.
+        const dimRow = document.createElement("tr");
+        dimRow.appendChild(document.createElement("th"));
+        for (let g = 0; g < 3; g++) {
+            for (let d = 0; d < dim; d++) {
+                const th = document.createElement("th");
+                th.textContent = `d${d}`;
+                th.className = "matrix-dim-label-header";
+                dimRow.appendChild(th);
+            }
+        }
+        table.appendChild(dimRow);
 
         // One row per character in the (normalized) input.
         for (let i = 0; i < data.length; i++) {
@@ -213,14 +354,23 @@ function setupEmbedText() {
 
             const label = document.createElement("td");
             label.className = "matrix-char";
-            label.textContent = char === " " ? "␣" : char;
+            label.textContent = (char === " " ? "␣" : char) + ` (pos ${data[i].position})`;
             tr.appendChild(label);
 
-            for (let d = 0; d < dim; d++) {
-                const td = document.createElement("td");
-                td.className = "matrix-cell";
-                td.textContent = data[i].embedding[d].toFixed(3);
-                tr.appendChild(td);
+            const groups = [
+                data[i].char_embedding,
+                data[i].position_embedding,
+                data[i].final_embedding,
+            ];
+            for (let g = 0; g < 3; g++) {
+                for (let d = 0; d < dim; d++) {
+                    const td = document.createElement("td");
+                    td.className = "matrix-cell";
+                    if (g === 2) td.classList.add("matrix-cell-final");
+                    if (d === 0) td.classList.add("matrix-cell-group-start");
+                    td.textContent = groups[g][d].toFixed(3);
+                    tr.appendChild(td);
+                }
             }
             table.appendChild(tr);
         }
@@ -228,11 +378,16 @@ function setupEmbedText() {
         resultDiv.innerHTML = "";
         resultDiv.appendChild(table);
 
-        // Plot the embedded characters on the 2D canvas.
-        const points = data.map(d => ({
-            char: idToChar[d.id],
-            vector: d.embedding,
-        }));
+        // Plot all three vectors for every character, with arrows from
+        // char and position to the final sum.
+        const points = [];
+        for (let i = 0; i < data.length; i++) {
+            const char = idToChar[data[i].id];
+            const pos = data[i].position;
+            points.push({ char: char, vector: data[i].char_embedding, kind: "char", position: pos });
+            points.push({ char: String(pos), vector: data[i].position_embedding, kind: "position", position: pos });
+            points.push({ char: char, vector: data[i].final_embedding, kind: "final", position: pos });
+        }
         plot.style.display = "block";
         drawPlot2D(plot, points);
     });
