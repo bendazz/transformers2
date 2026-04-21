@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Query
 from fastapi.staticfiles import StaticFiles
 import re
 import torch
@@ -7,10 +7,16 @@ import torch.nn as nn
 app = FastAPI()
 
 vocab = [" ", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]
+embedding = nn.Embedding(len(vocab), 2)
 
-char_to_id = {}
+
+vocab_lookup = {}
 for i,c in enumerate(vocab):
-    char_to_id[c] = i
+    dictionary = {
+        "id": i,
+        "embedding": embedding(torch.tensor(i)).tolist()
+    }
+    vocab_lookup[c] = dictionary
 
 
 def normalize(text):
@@ -25,49 +31,21 @@ def normalize(text):
     return new_text
 
 
-
-
-
 @app.get('/vocab')
 def get_vocab():
-    return vocab
+    return vocab_lookup
 
-@app.get('/encode')
-def encode(string: str):
-    encoded = []
-    for c in normalize(string):
-        encoded.append(char_to_id[c])
-    return encoded
-
-
-
-
-
-embedding = nn.Embedding(len(vocab), 2)
-
-@app.post('/set_dim')
-def set_dim(dim: int):
-    global embedding
-    embedding = nn.Embedding(len(vocab), dim)
-    return {"dim": dim}
-
-@app.get('/embed')
-def embed():
-    result = {}
-    for id in range(len(vocab)):
-        vector = embedding.weight[id]
-        result[id] = vector.tolist()
-    return result
 
 @app.get('/embed_text')
-def embed_text(string: str):
-    text = normalize(string)
-    result = []
-    for c in text:
-        id = char_to_id[c]
-        vector = embedding.weight[id]
-        result.append({"char": c, "id": id, "vector": vector.tolist()})
-    return result
+def embed_text(text:str):
+    embedding = []
+    for c in normalize(text):
+        embedding.append(vocab_lookup[c])
+    return embedding
+
+
+
+
 
 
 app.mount("/", StaticFiles(directory="static", html=True), name="static")
