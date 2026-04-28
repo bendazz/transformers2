@@ -1,0 +1,34 @@
+Transformer teaching trajectory
+================================
+
+Framing for students: mean-pooling is "attention with uniform weights and
+one shared output." Self-attention is "what happens when we let each token
+pick its own blend." The animation we already built hosts the whole arc.
+
+
+1. Weighted mean — one weight per token.
+   Right now the animation moves every token to THE mean (uniform weights
+   1/N). The next small step: let the user type weights, one per token
+   (e.g., "hello" with weights [0.5, 0.0, 0.0, 0.0, 0.5]), and animate
+   each token sliding toward that weighted average. This single change
+   introduces the core attention idea — "each output is a weighted blend
+   of inputs" — without any of the math machinery.
+
+
+2. Per-token weighted means.
+   Instead of ONE shared target, each token gets its OWN set of weights
+   and its OWN target. Now the animation shows N tokens sliding to N
+   different destinations. This is exactly what self-attention computes —
+   just with the weights still hand-typed by the user.
+
+
+3. Compute the weights from the vectors themselves.
+   Replace the user-typed weights with softmax(Q · K^T / sqrt(d)). The
+   visualization stays identical to step 2 — same animation, same vectors
+   gliding — but now the weights come from a formula instead of a
+   textbox. By this point students understand WHAT is being computed, so
+   the formula slots into a story they already get.
+
+
+4. Multi-head, then stacking, then training.
+   Each is its own small step on top of the same UI.

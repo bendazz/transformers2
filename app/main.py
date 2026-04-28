@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Query
 from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel
 import re
 import torch
 import torch.nn as nn
@@ -7,7 +8,7 @@ import torch.nn as nn
 app = FastAPI()
 
 vocab = [" ", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]
-max_length = 50
+max_length = 20
 
 embedding = nn.Embedding(len(vocab), 2)
 position_embedding = nn.Embedding(max_length, 2)
@@ -68,9 +69,30 @@ def embed_text(text:str):
             "position_embedding": pos_vec,
             "final_embedding": final_vec,
         })
-    return result
+
+    return {
+        "text": normalize(text),
+        "tokens": result,
+    }
 
 
+class BlendRequest(BaseModel):
+    vectors: list[list[float]]
+    weights: list[float]
+
+
+@app.post('/weighted_blend')
+def weighted_blend(req: BlendRequest):
+    V = torch.tensor(req.vectors)
+    w = torch.tensor(req.weights)
+
+    w = w / w.sum()
+
+    blend = torch.zeros(V.shape[1])
+    for i in range(V.shape[0]):
+        blend = blend + w[i] * V[i]
+
+    return {"blend": blend.tolist()}
 
 
 

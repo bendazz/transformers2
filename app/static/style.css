@@ -97,12 +97,64 @@ h2 {
     border-color: #66bb6a;
 }
 
-#plot2d, #position-plot2d {
+#plot2d, #position-plot2d, #final-plot2d {
     display: block;
     margin: 0 auto;
     border: 2px solid #ddd;
     border-radius: 8px;
     background: white;
+}
+
+#final-plot2d {
+    display: none;
+    margin-top: 16px;
+}
+
+#weights-hint {
+    display: none;
+    max-width: 500px;
+    margin: 16px auto 0 auto;
+    color: #555;
+    font-size: 14px;
+    text-align: center;
+}
+
+#apply-attention-btn {
+    display: none;
+    margin: 12px auto 0 auto;
+    padding: 10px 20px;
+    font-size: 15px;
+    font-weight: bold;
+    color: white;
+    background: #5b8fd9;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+#apply-attention-btn:hover {
+    background: #4a7bc5;
+}
+
+.weight-input {
+    width: 56px;
+    padding: 6px 8px;
+    font-family: "Courier New", monospace;
+    font-size: 14px;
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    text-align: center;
+}
+
+.target-radio {
+    transform: scale(1.4);
+    margin: 0 6px;
+}
+
+.vocab-row.target {
+    background: #fff8e1;
+    border-radius: 8px;
+    padding: 4px;
 }
 
 #position-list {

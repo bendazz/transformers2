@@ -13,19 +13,23 @@
     <h2>Embedding Space</h2>
     <canvas id="plot2d" width="500" height="500"></canvas>
 
+    <h2>Position Embeddings</h2>
+    <div id="position-list"></div>
+    <canvas id="position-plot2d" width="500" height="500"></canvas>
+
     <h2>Embed Text</h2>
     <form id="embed-text-form">
         <input type="text" id="embed-text-input" placeholder="Type anything...">
         <button type="submit">Embed</button>
     </form>
-
-    <h2>Position Embeddings</h2>
-    <div id="position-list"></div>
-    <canvas id="position-plot2d" width="500" height="500"></canvas>
-
-    <h2>Character + Position</h2>
     <div id="embed-text-result"></div>
-    <canvas id="text-plot2d" width="500" height="500"></canvas>
+    <p id="weights-hint">
+        Pick a target position. Give each position a weight (any non-negative number).
+        Weights are normalized to sum to 1, then the target's vector is replaced by
+        that weighted blend.
+    </p>
+    <button id="apply-attention-btn" type="button">Update Target Position</button>
+    <canvas id="final-plot2d" width="500" height="500"></canvas>
 
     <script src="script.js"></script>
 </body>
